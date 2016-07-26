@@ -1,0 +1,12 @@
+<project default="resolve" name="hello_jdbc" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+
+    <target name="resolve" description="Retrieving dependencies">
+        <ivy:settings url="http://artifactory.cpt.intecbilling.com/ivy/ivysettings.xml"/>
+        <ivy:resolve file="${basedir}/ivy.xml" />
+        <ivy:retrieve type="jar,bundle" pattern="${basedir}/staging/[artifact].[ext]" ivypattern="${basedir}/staging/[artifact].[ext]" />
+        <echo message="Retrieving dependencies"/>
+        <mkdir dir="${basedir}/staging"/>
+        <echo message="Staging file create"/>
+    </target>
+
+</project>
