@@ -1,9 +1,6 @@
 package main;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 
 /**
  * Created by tayfer01 on 7/26/2016.
@@ -13,7 +10,7 @@ public class CrudOperations {
     Connection connection = null;
     Statement statement = null;
     ResultSet rs = null;
-
+    boolean isValid;
 
     public CrudOperations() {
          connection = EstablishConnection.getConnection();
@@ -33,15 +30,19 @@ public class CrudOperations {
             preparedStatement.setString(3, "Taylor");
             preparedStatement.setString(4, "HR");
             preparedStatement .executeUpdate();
+
+            isValid = retrieveData();
         }
         catch(Exception ex) {
-
+            System.out.println(ex.getMessage());
         }
-        return false;
+        return isValid;
     }
 
     public boolean retrieveData()
     {
+
+        isValid = false;
         try{
             statement = connection.createStatement();
             rs = statement.executeQuery("SELECT  * FROM MANAGER");
@@ -49,42 +50,48 @@ public class CrudOperations {
             {
                 System.out.println("Employee Number : " + rs.getNString("EMPNO")
                 + "\nName : " + rs.getNString("Name"));
+                isValid = true;
             }
         }
         catch(Exception ex) {
             System.out.println(ex.getMessage());
         }
-        return false;
+        return isValid;
     }
 
-    public void updateRecord(String department)
+    public boolean updateRecord(String department)
     {
         /*Do not forget the single quotes when inserting a string to DB*/
         try {
             statement = connection.createStatement();
             rs = statement.executeQuery("UPDATE MANAGER SET DEPARTMENT = '" + department + "' WHERE EMPNO = 1234");
+            isValid = rs.rowUpdated();
             retrieveData();
         }
         catch (Exception ex) {
             System.out.println(ex.getMessage());
         }
+        return isValid;
     }
 
-    public void removeRecord()
+    public boolean removeRecord()
     {
+        String removeRecord = "DELETE FROM MANAGER WHERE EMPNO = ?";
         try{
-            statement = connection.createStatement();
-            rs = statement.executeQuery("DELETE FROM MANAGER WHERE EMPNO = 1234");
-            retrieveData();
+            PreparedStatement preparedStatement = connection.prepareStatement(removeRecord);
+            preparedStatement.setString(1, "1234");
+            preparedStatement .executeUpdate();
+            isValid = retrieveData();
         }
         catch(Exception ex) {
             System.out.println(ex.getMessage());
         }
+        return isValid;
     }
 
     public boolean createTable()
     {
-        boolean isValid = true;
+        isValid = false;
 
         try {
             statement = connection.createStatement();
@@ -99,13 +106,17 @@ public class CrudOperations {
                     "    EMPNO" +
                     "  )" +
                     "  ENABLE)");
-            if(rs.wasNull())
-                isValid = false;
+
+            DatabaseMetaData databaseMetaData = connection.getMetaData();
+            rs = databaseMetaData.getTables(null, null, "MANAGER", null);
+
+            if(rs.next())
+                isValid = true;
 
         }
         catch(Exception ex) {
             System.out.println(ex.getMessage());
         }
-        return false;
+        return isValid;
     }
 }

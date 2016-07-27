@@ -1,0 +1,45 @@
+<project default="clean" name="hello_jdbc" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+
+    <!--Retrieve dependencies from artifactry (junit and jdbc)-->
+    <target name="resolve" description="Retrieving dependencies">
+        <ivy:settings url="http://artifactory.cpt.intecbilling.com/ivy/ivysettings.xml"/>
+        <ivy:resolve file="${basedir}/ivy.xml" />
+        <ivy:retrieve type="jar,bundle" pattern="${basedir}/staging/[artifact].[ext]" ivypattern="${basedir}/staging/[artifact].[ext]" />
+        <echo message="Retrieving dependencies"/>
+        <mkdir dir="${basedir}/staging"/>
+        <echo message="Staging file create"/>
+    </target>
+
+    <!--Compiles all classes and not just test classes as the test classes require the other classes-->
+    <target name="compile" description="compiling test class" depends="resolve">
+        <javac includeantruntime="false" srcdir="${basedir}/src" destdir="${basedir}/staging">
+            <classpath>
+                <pathelement location="${basedir}/staging/junit.jar"/>
+                <pathelement location="${basedir}/staging/ojdbc7.jar"/>
+            </classpath>
+        </javac>
+    </target>
+
+    <!--Executes the test previously compiled-->
+    <target name="run" description="executing test class" depends="compile">
+        <junit printsummary="on">
+            <test name="CRUDTest"/>
+            <classpath>
+                <pathelement location="${basedir}/staging/junit.jar"/>
+                <pathelement location="${basedir}/staging"/>
+                <pathelement location="${basedir}/staging/ojdbc7.jar"/>
+            </classpath>
+            <formatter type="plain" usefile="false"/>
+        </junit>
+        <echo message="End of test classes"/>
+    </target>
+
+    <!--Deletes unnecessary folders-->
+    <target name="clean" description="clean" depends="run">
+        <delete>
+            <filelist dir="${basedir}/staging/main" />
+            <filelist dir="${basedir}/staging/CRUDTest.class" />
+        </delete>
+    </target>
+
+</project>
