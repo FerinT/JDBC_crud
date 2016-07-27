@@ -28,6 +28,7 @@
                 <pathelement location="${basedir}/staging/junit.jar"/>
                 <pathelement location="${basedir}/staging"/>
                 <pathelement location="${basedir}/staging/ojdbc7.jar"/>
+				<pathelement location="${basedir}/staging/hamcrest-core.jar"/>
             </classpath>
             <formatter type="plain" usefile="false"/>
         </junit>
@@ -39,6 +40,7 @@
         <delete>
             <filelist dir="${basedir}/staging/main" />
             <filelist dir="${basedir}/staging/CRUDTest.class" />
+			<pathelement location="${basedir}/staging/hamcrest-core.jar"/>
         </delete>
     </target>
 
